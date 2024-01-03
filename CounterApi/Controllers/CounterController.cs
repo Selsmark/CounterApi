@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CounterApi.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CounterApi.Controllers
 {
@@ -7,30 +8,33 @@ namespace CounterApi.Controllers
     public class CounterController : ControllerBase
     {
         private readonly ILogger<CounterController> _logger;
+        private readonly CounterManager _counterManager;
 
-        public CounterController(ILogger<CounterController> logger)
+
+        public CounterController(ILogger<CounterController> logger, CounterManager counterManager)
         {
             _logger = logger;
+            _counterManager = counterManager;
         }
 
-        private int counter = 0;
+        private int _counter = 0;
 
-        [HttpGet(Name = "Get")]
+        [HttpGet("Get")]
         public int Get()
         {
-            return counter;
+            return _counterManager.GetCounter();
         }
 
-        [HttpGet(Name = "Increment")]
+        [HttpGet("Increment")]
         public int Increment()
         {
-            return counter++;
+            return _counterManager.IncrementCounter();
         }
 
-        [HttpGet(Name = "Decrement")]
+        [HttpGet("Decrement")]
         public int Decrement()
         {
-            return counter--;
+            return _counterManager.DecrementCounter();
         }
     }
 }
