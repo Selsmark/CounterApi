@@ -10,14 +10,11 @@ namespace CounterApi.Controllers
         private readonly ILogger<CounterController> _logger;
         private readonly CounterManager _counterManager;
 
-
         public CounterController(ILogger<CounterController> logger, CounterManager counterManager)
         {
             _logger = logger;
             _counterManager = counterManager;
         }
-
-        private int _counter = 0;
 
         [HttpGet("Get")]
         public int Get()
