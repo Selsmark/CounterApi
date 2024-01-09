@@ -46,8 +46,8 @@ namespace IdentityApi.Controllers
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.Add(TokenLifetime),
-                Issuer = "https://id.selsmarksolutions.com",
-                Audience = "https://counter.selsmarksolutions.com",
+                Issuer = "https://id.nickchapsas.com",
+                Audience = "https://movies.nickchapsas.com",
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
