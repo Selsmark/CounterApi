@@ -1,10 +1,12 @@
 ﻿using CounterApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CounterApi.Controllers
 {
-    [ApiController]
+    [Authorize]
     [Route("[controller]")]
+    [ApiController]
     public class CounterController : ControllerBase
     {
         private readonly ILogger<CounterController> _logger;
