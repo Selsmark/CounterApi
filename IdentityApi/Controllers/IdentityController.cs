@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -9,52 +9,46 @@ namespace IdentityApi.Controllers
 {
     public class IdentityController : ControllerBase
     {
-        private const string TokenSecret = "ForTheLoveOfGodStoreAndLoadThisSecurely";
-        private static readonly TimeSpan TokenLifetime = TimeSpan.FromHours(8);
+        private IConfiguration _configuration;
 
+        public IdentityController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        [AllowAnonymous]
         [HttpPost("token")]
         public IActionResult GenerateToken(
-        [FromBody] TokenGenerationRequest request)
+        [FromBody] User user)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(TokenSecret);
-
-            var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Sub, request.Email),
-            new(JwtRegisteredClaimNames.Email, request.Email),
-            new("userid", request.UserId.ToString())
-        };
-
-            foreach (var claimPair in request.CustomClaims)
+            if (user.UserName == "nicklas@selsmark.dk" && user.Password == "S3lsm4rk")
             {
-                var jsonElement = (JsonElement)claimPair.Value;
-                var valueType = jsonElement.ValueKind switch
+                var issuer = _configuration["Jwt:Issuer"];
+                var audience = _configuration["Jwt:Audience"];
+                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    JsonValueKind.True => ClaimValueTypes.Boolean,
-                    JsonValueKind.False => ClaimValueTypes.Boolean,
-                    JsonValueKind.Number => ClaimValueTypes.Double,
-                    _ => ClaimValueTypes.String
+                    Subject = new ClaimsIdentity(new[]{
+                new Claim("Id", Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Email, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti,
+                Guid.NewGuid().ToString())
+            }),
+                    Expires = DateTime.UtcNow.AddMinutes(5),
+                    Issuer = issuer,
+                    Audience = audience,
+                    SigningCredentials = new SigningCredentials
+                    (new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha512Signature)
                 };
-
-                var claim = new Claim(claimPair.Key, claimPair.Value.ToString()!, valueType);
-                claims.Add(claim);
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var jwtToken = tokenHandler.WriteToken(token);
+                var stringToken = tokenHandler.WriteToken(token);
+                return Ok(stringToken);
             }
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.Add(TokenLifetime),
-                Issuer = "https://id.selsmarksolutions.com",
-                Audience = "https://counter.selsmarksolutions.com",
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            var jwt = tokenHandler.WriteToken(token);
-            return Ok(jwt);
+            return Unauthorized();
         }
     }
 }
