@@ -5,7 +5,9 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CounterApi", "CounterApi\CounterApi.csproj", "{8AB87556-7AA7-4E61-978F-DD73B3BF447A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityApi", "IdentityApi\IdentityApi.csproj", "{726C8AEA-70B7-4B2A-A40E-CD6E28C3966E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityApi", "IdentityApi\IdentityApi.csproj", "{726C8AEA-70B7-4B2A-A40E-CD6E28C3966E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketServer", "SocketServer\SocketServer.csproj", "{5113E642-A53C-4B49-852B-C06A655EA8B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{726C8AEA-70B7-4B2A-A40E-CD6E28C3966E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{726C8AEA-70B7-4B2A-A40E-CD6E28C3966E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{726C8AEA-70B7-4B2A-A40E-CD6E28C3966E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5113E642-A53C-4B49-852B-C06A655EA8B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5113E642-A53C-4B49-852B-C06A655EA8B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5113E642-A53C-4B49-852B-C06A655EA8B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5113E642-A53C-4B49-852B-C06A655EA8B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
