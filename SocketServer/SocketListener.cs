@@ -1,63 +1,94 @@
-﻿using System;
+﻿using RSAKeyExchangeModule;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace SocketServer
+namespace CounterServer
 {
     public class SocketListener
     {
+        private static readonly string PublicPemFilename = "public.pem";
+        private static readonly string PrivatePemFilename = "private.pem";
+
         public static void StartServer()
         {
-            IPHostEntry host = Dns.GetHostEntry("192.168.58.70");
-            IPAddress ipAddress = host.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
+            const string ip = "192.168.100.52";
+            const int port = 11000;
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
 
             try
             {
-                // Create a Socket using the TCP protocol
-                Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                IPAddress localAddress = IPAddress.Parse(ip);
+                //server = new TcpListener(localAddress, port);
+                IPEndPoint localEndPoint = new IPEndPoint(localAddress, port);
 
-                // Associate the Socket with an endpoint 
-                listener.Bind(localEndPoint);
+                // Create a TCP socket
+                Socket serverSocket = new Socket(localAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                serverSocket.Bind(localEndPoint);
 
-                // How many requests a Socket can listen to before "Server busy"-response
-                listener.Listen(10);
+                // Listen for incoming connections
+                serverSocket.Listen(10);
+                Console.WriteLine("Server listening on port 11000");
 
-                Console.WriteLine("Waiting for a connection...");
-                Socket handler = listener.Accept();
-
-                // Incoming data from the client
-                string data = null;
-                byte[] bytes = null;
-
+                // Accept incoming connections
                 while (true)
                 {
-                    bytes = new byte[1024];
-                    int bytesRec = handler.Receive(bytes);
-                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                    if (data.IndexOf("<EOF>") > -1)
-                    {
-                        break;
-                    }
-                }
-                Console.WriteLine("Text received : {0}", data);
+                    Socket clientSocket = serverSocket.Accept();
 
-                byte[] msg = Encoding.ASCII.GetBytes(data);
-                handler.Send(msg);
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
+                    // Handle the connection in a separate thread
+                    Thread thread = new Thread(() => HandleClient(clientSocket));
+                    thread.Start();
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
-
-            Console.WriteLine("\n Press any key to continue...");
-            Console.ReadKey();
         }
+
+        private static void HandleClient(Socket clientSocket)
+        {
+            try
+            {
+                while (clientSocket.Connected)
+                {
+                    // Receive data from the client
+                    byte[] buffer = new byte[2048];
+                    int bytesReceived = clientSocket.Receive(buffer);
+
+                    // Check if the client has closed the connection
+                    if (bytesReceived == 0)
+                    {
+                        Console.WriteLine("Client disconnected");
+                        break;
+                    }
+
+                    // Convert the received data to a string and return a encrypted API token
+                    var receivedPublicKey = Encoding.UTF8.GetString(buffer, 0, bytesReceived);
+
+                    string testToken = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjBiYTUwNjcxLTQ5N2QtNDJjZS05NGE3LWNlY2M4ZDNmMjg0NSIsInN1YiI6Im5pY2tsYXNAc2Vsc21hcmsuZGsiLCJ";
+
+                    byte[] encryptedToken = Cryptor.EncryptData(testToken, receivedPublicKey);
+
+                    Console.WriteLine(encryptedToken);
+
+                    buffer = encryptedToken;
+                    clientSocket.Send(buffer);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            finally { clientSocket.Close(); }
+        }
+
     }
 }

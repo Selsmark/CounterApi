@@ -1,12 +1,15 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using IdentityApi.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityApi.Controllers
 {
+    [ApiController]
+    [ServiceFilter(typeof(ApiKeyAuthFilter))]
     public class IdentityController : ControllerBase
     {
         private IConfiguration _configuration;
@@ -18,14 +21,15 @@ namespace IdentityApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("token")]
+        //[ApiKeyAuthFilter]
         public IActionResult GenerateToken(
         [FromBody] User user)
         {
             if (user.UserName == "nicklas@selsmark.dk" && user.Password == "S3lsm4rk")
             {
-                var issuer = _configuration["Jwt:Issuer"];
-                var audience = _configuration["Jwt:Audience"];
-                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                var issuer = _configuration["JwtSettings:Issuer"];
+                var audience = _configuration["JwtSettings:Audience"];
+                var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Key"]);
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new[]{
@@ -44,7 +48,6 @@ namespace IdentityApi.Controllers
                 };
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = tokenHandler.CreateToken(tokenDescriptor);
-                var jwtToken = tokenHandler.WriteToken(token);
                 var stringToken = tokenHandler.WriteToken(token);
                 return Ok(stringToken);
             }
