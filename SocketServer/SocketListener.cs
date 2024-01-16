@@ -73,9 +73,9 @@ namespace CounterServer
                     // Convert the received data to a string and return a encrypted API token
                     var receivedPublicKey = Encoding.UTF8.GetString(buffer, 0, bytesReceived);
 
-                    string testToken = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjBiYTUwNjcxLTQ5N2QtNDJjZS05NGE3LWNlY2M4ZDNmMjg0NSIsInN1YiI6Im5pY2tsYXNAc2Vsc21hcmsuZGsiLCJ";
+                    string testKey = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjBiYTUwNjcxLTQ5N2QtNDJjZS05NGE3LWNlY2M4ZDNmMjg0NSIsInN1YiI6Im5pY2tsYXNAc2Vsc21hcmsuZGsiLCJ";
 
-                    byte[] encryptedToken = Cryptor.EncryptData(testToken, receivedPublicKey);
+                    byte[] encryptedToken = Cryptor.EncryptData(testKey, receivedPublicKey);
 
                     Console.WriteLine(encryptedToken);
 

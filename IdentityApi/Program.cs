@@ -56,7 +56,8 @@ namespace IdentityApi
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            // Disabled for not to redirect to HTTPS when testing App. Should be reenabled if launched.
+            //app.UseHttpsRedirection();
 
             //app.UseMiddleware<ApiKeyAuthMiddleware>();
 
@@ -67,7 +68,7 @@ namespace IdentityApi
 
             //var group = app.MapGroup("weather").AddEndpointFilter<ApiKeyEndpointFilter>();
 
-            app.MapGet("usertest", () =>
+            app.MapGet("testUser", () =>
             {
                 return Enumerable.Range(1, 5).Select(index => new User
                 {
